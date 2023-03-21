@@ -96,6 +96,7 @@ while True:
     # Corresponding to the sampling rate of 250 Hz
     if counter < 250:
         formatted_time = format_timestamp(get_current_timestamp())
+        formatted_time = formatted_time[:8] + formatted_time[-5:]
 
         ecg_reading_json = {
             # Each value will be stored and referenced as key
