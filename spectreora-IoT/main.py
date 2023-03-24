@@ -94,7 +94,7 @@ while True:
     ecg_data = adc.read_u16()
 
     # Corresponding to the sampling rate of 250 Hz
-    if counter < 250:
+    if counter < 1800:
         formatted_time = format_timestamp(get_current_timestamp())
         formatted_time = formatted_time[:8] + formatted_time[-5:]
 
