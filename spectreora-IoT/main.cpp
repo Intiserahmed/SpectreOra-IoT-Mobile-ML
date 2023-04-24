@@ -1,55 +1,72 @@
-#include <iostream>
-#include <vector>
-#include <random>
-#include <cpr/cpr.h>
-#include <nlohmann/json.hpp>
+#include <WiFiNINA.h>
+#include <ArduinoHttpClient.h>
+#include <ArduinoJson.h>
 
+const char *ssid = "your_wifi_ssid";
+const char *password = "your_wifi_password";
 
-const std::string SUPABASE_URL = "https://your-supabase-instance.supabase.co/rest/v1";
-const std::string SUPABASE_API_KEY = "your-supabase-api-key";
+const char *supabase_host = "your-supabase-instance.supabase.co";
+const int supabase_port = 80;
+const char *supabase_api_key = "your-supabase-api-key";
+const char *supabase_table_name = "your-table-name";
 
-bool send_ecg_data_to_supabase(const std::vector<int>& ecg_values) {
-    // Create a JSON array with the ECG data
-    nlohmann::json data = nlohmann::json::array();
-    for (const auto& ecg_value : ecg_values) {
-        nlohmann::json item;
-        item["ecg_value"] = ecg_value;
-        data.push_back(item);
+WiFiClient wifiClient;
+HttpClient httpClient = HttpClient(wifiClient, supabase_host, supabase_port);
+
+void setup()
+{
+    Serial.begin(9600);
+    while (!Serial)
+    {
+        ; // Wait for serial connection
     }
 
-    // Send the ECG data to Supabase using an HTTP POST request
-    cpr::Response response = cpr::Post(
-        cpr::Url{SUPABASE_URL + "/your-table-name"},
-        cpr::Header{
-            {"apikey", SUPABASE_API_KEY},
-            {"Content-Type", "application/json"},
-            {"Prefer", "return=representation"}
-        },
-        cpr::Body{data.dump()}
-    );
+    Serial.print("Connecting to Wi-Fi");
+    WiFi.begin(ssid, password);
 
-    // Check if the request was successful
-    if (response.status_code == 201) {
-        std::cout << "ECG data sent to Supabase successfully" << std::endl;
-        return true;
-    } else {
-        std::cerr << "Failed to send ECG data to Supabase: " << response.text << std::endl;
-        return false;
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
     }
+
+    Serial.println("Connected to Wi-Fi");
 }
 
-int main() {
-    // Generate a vector of 10 random integers as dummy ECG values
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(10000, 20000);
+void loop()
+{
+    // Generate dummy ECG data
+    int ecg_value = random(10000, 20000);
 
-    std::vector<int> ecg_values;
-    for (int i = 0; i < 10; ++i) {
-        ecg_values.push_back(dist(gen));
+    // Create a JSON object to store the ECG data
+    StaticJsonDocument<64> jsonDocument;
+    jsonDocument["ecg_value"] = ecg_value;
+    String requestBody;
+    serializeJson(jsonDocument, requestBody);
+
+    // Send the ECG data to Supabase using an HTTP POST request
+    httpClient.beginRequest();
+    httpClient.post(String("/rest/v1/") + supabase_table_name);
+    httpClient.sendHeader("apikey", supabase_api_key);
+    httpClient.sendHeader("Content-Type", "application/json");
+    httpClient.sendHeader("Prefer", "return=representation");
+    httpClient.sendHeader("Content-Length", requestBody.length());
+    httpClient.beginBody();
+    httpClient.print(requestBody);
+    httpClient.endRequest();
+
+    // Check if the request was successful
+    int statusCode = httpClient.responseStatusCode();
+    if (statusCode == 201)
+    {
+        Serial.println("ECG data sent to Supabase successfully");
+    }
+    else
+    {
+        Serial.print("Failed to send ECG data to Supabase: ");
+        Serial.println(statusCode);
     }
 
-    send_ecg_data_to_supabase(ecg_values);
-
-    return 0;
+    // Wait for 5 seconds before sending the next ECG value
+    delay(5000);
 }
