@@ -3,6 +3,7 @@
 This project is an IoT-based ECG prediction application that uses a Raspberry Pi Pico connected to an AD8232 sensor to send ECG data to the cloud. A pre-trained machine learning model hosted on Heroku predicts the results, and a FastAPI RESTful API writes the predictions back to the database. A Flutter mobile app fetches the predictions and displays them to the end users.
 
 ## Architecture
+![SpectreOra Arch Screenshot](./Architecture.png)
 
 1. **IoT Device (Raspberry Pi Pico + AD8232 sensor)**: The Raspberry Pi Pico collects ECG data from the AD8232 sensor and sends it to the chosen database (Firebase Realtime or Supabase) using HTTP requests through Micropython.
 2. **Database (Firebase Realtime or Supabase)**: The ECG data from the Raspberry Pi Pico is stored in the chosen database.
