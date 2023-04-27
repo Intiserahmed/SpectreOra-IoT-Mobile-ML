@@ -88,7 +88,8 @@ while True:
     if ticks_diff(next_sample, now) <= 0:
         if read_adc(adc):
             if ticks_diff(now, last_send_time) >= send_data_interval:
-                payload = ujson.dumps({"values": ecg_data_array})
+                payload = ujson.dumps(
+                    {"values": ecg_data_array, "user_id": config.USER_ID})
                 gc.collect()
                 # Send compressed payload
                 send_data(wlan, url, payload, headers)
