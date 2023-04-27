@@ -5,11 +5,13 @@ This project is an IoT-based ECG prediction application that uses a Raspberry Pi
 ## Architecture
 ![SpectreOra Arch Screenshot](./Architecture.png)
 
-1. **IoT Device (Raspberry Pi Pico + AD8232 sensor)**: The Raspberry Pi Pico collects ECG data from the AD8232 sensor and sends it to the chosen database (Firebase Realtime or Supabase) using HTTP requests through Micropython.
-2. **Database (Firebase Realtime or Supabase)**: The ECG data from the Raspberry Pi Pico is stored in the chosen database.
-3. **Pre-trained Machine Learning Model on Heroku**: The pre-trained machine learning model, hosted on Heroku, reads ECG data from the database and makes predictions.
-4. **FastAPI RESTful API**: The pre-trained machine learning model is integrated with a FastAPI RESTful API, which serves the predictions made by the model. The API also writes the prediction results back to the chosen database.
-5. **Flutter Mobile App**: The Flutter mobile app fetches the prediction results from the database and displays them to the end users.
+1. **IoT Device >> Database (Supabase)**: The IoT device sends ECG data to the Supabase database using HTTP requests through C++ or Micropython.
+2. **Database (Supabase) >> FastAPI RESTful API:**: The FastAPI RESTful API retrieves the ECG data from the Supabase database using SQL queries or Supabase SDK. The API passes the data to the pre-trained machine learning model hosted on Heroku, typically using JSON format.
+3. **Pre-trained Machine Learning Model on Heroku >> FastAPI RESTful API:**:The machine learning model processes the ECG data and generates prediction results. The results are sent back to the FastAPI RESTful API in JSON format.
+4. **Database (Supabase) >> Flutter Mobile App:**: The FastAPI RESTful API writes the prediction results back to the Supabase database for storage.
+5. **Flutter Mobile App**: The Flutter mobile app listens to the Supabase database using Supabase subscriptions to receive prediction results in real-time. When new results are added to the database, the app automatically updates its display to show the latest predictions.
+
+
 
 ## Setup and Installation
 
