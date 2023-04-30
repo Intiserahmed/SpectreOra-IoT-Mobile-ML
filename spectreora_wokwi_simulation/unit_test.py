@@ -19,7 +19,7 @@ class TestMain(unittest.TestCase):
             mock_wlan.active.assert_called_once_with(True)
             mock_wlan.connect.assert_called_once_with(
                 main.config.SSID, main.config.PASSWORD)
-            mock_wlan.ifconfig.assert_called_once()o
+            mock_wlan.ifconfig.assert_called_once()
 
     def test_read_adc(self):
         # Test that the read_adc function collects ECG data correctly
