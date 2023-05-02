@@ -1,0 +1,51 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+import pandas as pd
+import numpy as np
+import supabase_py
+
+# Replace these with your Supabase credentials
+supabase_url = ""
+supabase_key = ""
+supabase = supabase_py.create_client(supabase_url, supabase_key)
+
+
+app = FastAPI()
+
+
+class PatientData(BaseModel):
+    age: int
+    bmi: float
+    agl: float
+    smoking_status: str
+    heart_disease: bool
+    gender: str
+    work_type: str
+    ever_married: bool
+    residence_type: str
+    hypertension: bool
+
+
+@app.post("/predict/")
+async def predict_stroke_risk(data: PatientData):
+
+    # Save the data and prediction to the Supabase database
+    response = await save_prediction_to_supabase(data, prediction)
+
+    return {"prediction": prediction, "response": response}
+
+
+async def save_prediction_to_supabase(data: PatientData, prediction: float):
+    patient_data = data.dict()
+    patient_data["prediction"] = prediction
+
+    response = await supabase.from_("your_table").insert([patient_data])
+
+    return response
+
+
+@app.get("/data/")
+async def get_data_from_supabase():
+    response = await supabase.from_("your_table").select("*")
+
+    return response.data
