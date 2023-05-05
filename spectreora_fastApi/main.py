@@ -6,6 +6,9 @@ from botocore.config import Config
 from botocore import UNSIGNED
 import io
 
+import {createClient} from "@supabase/supabase-js"
+import fetch from "node-fetch"
+
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -92,6 +95,42 @@ patient_data = {
 if __name__ == "__main__":
     stroke_risk, confidence = predict_stroke_risk(patient_data)
     print(f"Stroke risk: {stroke_risk:.3f}, Confidence: {confidence:.2f}%")
+
+
+const supabaseUrl = "https://your-supabase-project-url.supabase.co"
+const supabaseKey = "your-supabase-public-api-key"
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+const fastApiUrl = "https://your-fastapi-url.com/process_user"
+
+export default async function onRequest(req, res) {
+    const {body} = req
+
+    if (body.event === "INSERT" | | body.event == = "UPDATE") {
+        const user = body.new
+
+        // Call the FastAPI POST endpoint
+        try {
+            const response = await fetch(fastApiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(user),
+            })
+
+            if (response.ok) {
+                res.status(200).send("User processed successfully")
+            } else {
+                res.status(500).send("Error processing user")
+            }
+        } catch(error) {
+            res.status(500).send("Error processing user")
+        }
+    } else {
+        res.status(400).send("Invalid event")
+    }
+}
 
 
 # async def save_prediction_to_supabase(data: PatientData, prediction: float):
