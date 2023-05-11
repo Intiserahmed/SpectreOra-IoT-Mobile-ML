@@ -1,10 +1,8 @@
 import boto3
 import os
 
-accessKey = 'AKIAVWCJ7IWM3E2ZUVIU'
-""": str = os.environ.get("awsAccessKey")"""
-secretKey = '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'
-""": str = os.environ.get("awsSecretKey")"""
+accessKey: str = os.environ.get("awsAccessKey")
+secretKey: str = os.environ.get("awsSecretKey")
 
 session = boto3.Session(
     aws_access_key_id=accessKey,
