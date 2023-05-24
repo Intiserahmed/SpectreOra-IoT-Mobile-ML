@@ -6,7 +6,7 @@ app = FastAPI()
 
 
 @app.get("/")
-async def getPredictions(userId):
+async def getPredictions(userId='3a283a5f-a00a-4a8e-ba7b-30e3e72bb7f6'):
     if userId == '':
         raise HTTPException(status_code=404, detail="userID is not provided")
     predictedHeartDisease = connect_AWS.predict_heart_disease(userId)

@@ -11,15 +11,15 @@ import numpy as np
 os.system('aws s3 sync s3://userdatastrokeprediction .')
 
 # laod the models
-def loadECGModel():
-    ecg_model = keras.models.load_model('ecg_prediction/')
-    stroke_models = []
-    models = os.listdir('stroke prediction models/')
-    for i in models:
-        stroke_models.append(pickle.load(
-            open(f'stroke prediction models/{i}', 'rb')))
-    return ecg_model
-    # fetch the data from supabase using the user_id
+ecg_model = keras.models.load_model('ecg_prediction/')
+
+stroke_models = []
+models = os.listdir('stroke prediction models/')
+for i in models:
+    stroke_models.append(pickle.load(
+        open(f'stroke prediction models/{i}', 'rb')))
+
+# fetch the data from supabase using the user_id
 def getUserReadings(userId):
     ecgReadings = connect_supabase.getUserData(userId)
     ecgReadingsDf = pd.DataFrame(ecgReadings).T
@@ -47,7 +47,7 @@ def getUserReadings(userId):
 
 
 def predict_heart_disease(userID):
-    ecgModel = loadECGModel()
+    ecgModel = ecg_model
     ecgReadings = getUserReadings(userID)
     prediction = ecgModel.predict(ecgReadings)
     return np.array(prediction).argmax()
