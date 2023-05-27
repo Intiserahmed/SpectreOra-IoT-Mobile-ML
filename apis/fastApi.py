@@ -6,8 +6,20 @@ app = FastAPI()
 
 
 @app.get("/")
-async def getPredictions(userId,gender,age,hyperTension,everMarried,workType,residenceType,AGL,BMI,smokingStatus):
-    userId = '3a283a5f-a00a-4a8e-ba7b-30e3e72bb7f6'
+async def getPredictions(
+    userId = '3a283a5f-a00a-4a8e-ba7b-30e3e72bb7f6',
+    gender = 'male',
+    age = 67.0,
+    hyperTension = 0,
+    everMarried = 'Yes',
+    workType = 'Private',
+    residenceType = 'Urban',
+    AGL = 228.69,
+    BMI = 36.6,
+    smokingStatus = 'formerly smoked'):
+    
+     
+
     if userId == '':
         raise HTTPException(status_code=404, detail="userID is not provided")
     elif gender == '':
@@ -30,7 +42,8 @@ async def getPredictions(userId,gender,age,hyperTension,everMarried,workType,res
         raise HTTPException(status_code=404, detail="Smoking status type is not provided")
 
     predictedHeartDisease = connect_AWS.predict_heart_disease(userId)
-    predicedStrokeProba = connect_AWS.predict_stroke(
+    print(predictedHeartDisease)
+    predictedStrokeProba = connect_AWS.predict_stroke(
         connect_AWS.stroke_models,
         gender,
         age,
@@ -44,4 +57,4 @@ async def getPredictions(userId,gender,age,hyperTension,everMarried,workType,res
         smokingStatus)
 
 
-    # return json.loads(predictedHeartDiseaseJson)
+    return predictedStrokeProba

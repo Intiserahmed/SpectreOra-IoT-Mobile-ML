@@ -70,7 +70,7 @@ def predict_stroke(stroke_models, gender, age, hyperTension, predictedHeartDisea
     for i in stroke_predictions:
         avg += i[0][1]
 #         print(i[0][1])
-    avg /= 4
+    avg /= 3
     return 'predicted brain stroke is {:.2f}%'.format(avg*100)
 
 # return predicted values to supabase to be read from the front end
