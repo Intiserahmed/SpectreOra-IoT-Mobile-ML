@@ -4,7 +4,7 @@ import pickle
 import connect_supabase
 import pandas as pd
 import numpy as np
-# set credentials in heroku as environment variables
+# set the AWS credentials in heroku as environment variables
 
 # download the s3 bucket in local heroku environment
 
@@ -20,6 +20,8 @@ for i in models:
         open(f'stroke prediction models/{i}', 'rb')))
 
 # fetch the data from supabase using the user_id
+
+
 def getUserReadings(userId):
     ecgReadings = connect_supabase.getUserData(userId)
     ecgReadingsDf = pd.DataFrame(ecgReadings).T
@@ -27,21 +29,19 @@ def getUserReadings(userId):
     return ecgReadingsDf
 
 
-
-
-
-# user details as a variable till the app is ready & preprocessing 
-# user_details = {
-#     'gender': 'male',
-#     'age': 24,
-#     'hypertension':1,
-#     'ever_married': 'Yes',
-#     'work_type': 'Private',
-#     'Residence_type': 1,
-#     'avg_glucose_level': 120,
-#     'bmi': 21.5,
-#     'smoking_status': 'formerly smoked'
-# }
+# user details as a variable till the app is ready & preprocessing
+user_details = {
+    'gender': 'male',
+    'age': 24,
+    'hypertension': 1,
+    'ever_married': 'Yes',
+    'work_type': 'Private',
+    'Residence_type': 1,
+    'avg_glucose_level': 120,
+    'bmi': 21.5,
+    'smoking_status': 'formerly smoked'
+}
+fullProcessor = pickle.load(open('fullprocessor', 'rb'))
 
 # predict functions
 
@@ -53,10 +53,26 @@ def predict_heart_disease(userID):
     return np.array(prediction).argmax()
 
 
-def predict_stroke(stroke_models, predicted_heart, user_details):
+def predict_stroke(stroke_models, gender, age, hyperTension, predictedHeartDisease, everMarried, workType, residenceType, AGL, BMI, smokinStatus):
+    colNames = ['gender', 'age', 'hypertension', 'heart_disease',
+                'ever_married', 'work_type', 'Residence_type', 'avg_glucose_level', 'bmi', 'smoking_status']
+    data = [[gender, age, hyperTension, predictedHeartDisease,
+            everMarried, workType, residenceType, AGL, BMI, smokinStatus]]
+    df = pd.DataFrame(columns=colNames, data=data)
+    for col in colNames:
+        if df[col].dtype == int:
+            df[col] = df[col].astype(str)
+    processedData = fullProcessor.transform(df)
     stroke_predictions = []
     for model in stroke_models:
-        stroke_prediction.append(model.predict())
+        stroke_predictions.append(model.predict_proba(processedData))
+    avg = 0
+    for i in stroke_predictions:
+        avg += i[0][1]
+#         print(i[0][1])
+    avg /= 4
+    return 'predicted brain stroke is {:.2f}%'.format(avg*100)
+
 # return predicted values to supabase to be read from the front end
 
 
