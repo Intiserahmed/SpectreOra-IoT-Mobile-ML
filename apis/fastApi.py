@@ -7,18 +7,16 @@ app = FastAPI()
 
 @app.get("/")
 async def getPredictions(
-    userId = '3a283a5f-a00a-4a8e-ba7b-30e3e72bb7f6',
-    gender = 'male',
-    age = 67.0,
-    hyperTension = 0,
-    everMarried = 'Yes',
-    workType = 'Private',
-    residenceType = 'Urban',
-    AGL = 228.69,
-    BMI = 36.6,
-    smokingStatus = 'formerly smoked'):
-    
-     
+        userId,
+        gender,
+        age,
+        hyperTension,
+        everMarried,
+        workType,
+        residenceType,
+        AGL,
+        BMI,
+        smokingStatus):
 
     if userId == '':
         raise HTTPException(status_code=404, detail="userID is not provided")
@@ -27,19 +25,25 @@ async def getPredictions(
     elif age == 0:
         raise HTTPException(status_code=404, detail="Age is not provided")
     elif hyperTension == '':
-        raise HTTPException(status_code=404, detail="hyper tension is not provided")
+        raise HTTPException(
+            status_code=404, detail="hyper tension is not provided")
     elif everMarried == '':
-        raise HTTPException(status_code=404, detail="marriage status is not provided")
+        raise HTTPException(
+            status_code=404, detail="marriage status is not provided")
     elif workType == '':
-        raise HTTPException(status_code=404, detail="Work type is not provided")
+        raise HTTPException(
+            status_code=404, detail="Work type is not provided")
     elif residenceType == '':
-        raise HTTPException(status_code=404, detail="Residence type is not provided")
+        raise HTTPException(
+            status_code=404, detail="Residence type is not provided")
     elif AGL == 0:
-        raise HTTPException(status_code=404, detail="average glucose level is not provided")
+        raise HTTPException(
+            status_code=404, detail="average glucose level is not provided")
     elif BMI == 0:
         raise HTTPException(status_code=404, detail="BMI type is not provided")
     elif smokingStatus == '':
-        raise HTTPException(status_code=404, detail="Smoking status type is not provided")
+        raise HTTPException(
+            status_code=404, detail="Smoking status type is not provided")
 
     predictedHeartDisease = connect_AWS.predict_heart_disease(userId)
     print(predictedHeartDisease)
@@ -55,6 +59,18 @@ async def getPredictions(
         AGL,
         BMI,
         smokingStatus)
+    if int(predictedStrokeProba) > 20:
 
+        medicalAttention = 'YES'
+    else:
+        medicalAttention = 'NO'
 
-    return predictedStrokeProba
+    response = {
+        "predictedStrokeProba": '{:.2f}'.format(predictedStrokeProba),
+        "predictedHeartDisease": str(predictedHeartDisease),
+        'medicalAttentionNeeded': medicalAttention
+    }
+    response = json.dumps(response, indent=4)
+    response = json.loads(response)
+    print(response['predictedHeartDisease'])
+    return response
