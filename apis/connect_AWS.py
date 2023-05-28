@@ -69,16 +69,7 @@ def predict_stroke(stroke_models, gender, age, hyperTension, predictedHeartDisea
     avg = 0
     for i in stroke_predictions:
         avg += i[0][1]
-#         print(i[0][1])
     avg /= 2
     return avg*100
 
-# return predicted values to supabase to be read from the front end
 
-
-# print("Storke predicted:", predict_stroke(
-#     stroke_models=stroke_models,
-#     predicted_haert_disease=predict_heart_disease(ecg_model, ecgReadings),
-#     user_details= processed_data
-# )
-# )
