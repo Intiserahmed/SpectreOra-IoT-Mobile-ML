@@ -11,7 +11,7 @@ counter = 0
 
 
 def wifi_connect():
-    ssid, password = config.SSID, config.PASSWORD
+    ssid, password = config.ssid, config.password
     wlan = WLAN(STA_IF)
     wlan.active(True)
     wlan.connect(ssid, password)
