@@ -4,6 +4,7 @@ import pickle
 import connect_supabase
 import pandas as pd
 import numpy as np
+
 # set the AWS credentials in heroku as environment variables
 
 # download the s3 bucket in local heroku environment
