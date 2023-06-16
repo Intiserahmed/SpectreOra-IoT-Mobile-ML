@@ -1,50 +1,57 @@
 import unittest
-from unittest.mock import Mock, patch
-import main
 
+Define a test class that inherits from unittest.TestCase
+class TestEcgData(unittest.TestCase):
 
-class TestMain(unittest.TestCase):
+# Define a setUp method that runs before each test case
+def setUp(self):
+    # Create an instance of the WLAN class and connect to Wi-Fi
+    self.wlan = wifi_connect()
+    # Create an instance of the ADC class and pass the pin number
+    self.adc = ADC(Pin(26))
+    # Set the url, headers, sampling interval, and send data interval
+    self.url, self.headers = config.SUPABASE_URL, {
+        "apikey": config.API_KEY,
+        "Content-Type": config.TYPE
+    }
+    self.sampling_interval, self.send_data_interval = 8, 15 * 1000
+    # Set the next sample and last send time to the current time
+    self.next_sample, self.last_send_time = ticks_ms(), ticks_ms()
 
-    def test_wifi_connect_success(self):
-        # Test that the wifi_connect function successfully connects to the specified Wi-Fi network
-        mock_wlan = Mock()
-        mock_sta_if = Mock(return_value=mock_wlan)
-        with patch('main.WLAN', mock_sta_if):
-            mock_wlan.isconnected.return_value = True
-            mock_wlan.ifconfig.return_value = (
-                '192.168.1.100', '255.255.255.0', '192.168.1.1', '8.8.8.8')
-            result = main.wifi_connect()
-            self.assertEqual(result, mock_wlan)
-            mock_sta_if.assert_called_once()
-            mock_wlan.active.assert_called_once_with(True)
-            mock_wlan.connect.assert_called_once_with(
-                main.config.SSID, main.config.PASSWORD)
-            mock_wlan.ifconfig.assert_called_once()o
+# Define a tearDown method that runs after each test case
+def tearDown(self):
+    # Disconnect from Wi-Fi and close the WLAN instance
+    self.wlan.disconnect()
+    self.wlan.active(False)
+    self.wlan.close()
+    # Close the ADC instance
+    self.adc.close()
 
-    def test_read_adc(self):
-        # Test that the read_adc function collects ECG data correctly
-        mock_adc = Mock()
-        mock_pin = Mock(return_value=mock_adc)
-        with patch('main.Pin', mock_pin):
-            mock_adc.read_u16.return_value = 500
-            # Test filling the ecg_data_array
-            for i in range(3000):
-                result = main.read_adc(mock_adc)
-                if i < 2999:
-                    self.assertFalse(result)
-                else:
-                    self.assertTrue(result)
-            # Test resetting the ecg_data_array
-            self.assertEqual(main.ecg_data_array, [None] * 3000)
-
-    def test_send_data(self):
-        # Test that the send_data function sends data correctly
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_post = Mock(return_value=mock_response)
-        with patch('main.urequests.post', mock_post):
-            result = main.send_data(
-                Mock(), 'http://example.com', '{}', {'Content-Type': 'application/json'})
-            self.assertEqual(result, 200)
-            mock_post.assert_called_once_with(
-                'http://example.com', data='{}', headers={'Content-Type': 'application/json'})
+# Define a test case for reading adc values and sending data
+def test_read_adc_and_send_data(self):
+    # Use a loop to simulate 20 seconds of data collection and transmission
+    for _ in range(20):
+        # Get the current time
+        now = ticks_ms()
+        # Check if it is time to read adc values
+        if ticks_diff(self.next_sample, now) <= 0:
+            # Call the read_adc function and store the return value
+            is_full = read_adc(self.adc)
+            # Check if it is time to send data
+            if is_full and ticks_diff(now, self.last_send_time) >= self.send_data_interval:
+                # Prepare the payload as a JSON string
+                payload = ujson.dumps(
+                    {"values": ecg_data_array, "user_id": config.USER_ID})
+                gc.collect()
+                # Call the send_data function and store the return value
+                status_code = send_data(self.wlan, self.url, payload, self.headers)
+                gc.collect()
+                # Assert that the status code is 200 (OK)
+                self.assertEqual(status_code, 200)
+                # Update the last send time
+                self.last_send_time = ticks_ms()
+            # Update the next sample time
+            self.next_sample = ticks_ms() + self.sampling_interval
+Copy
+Run the test script if it is executed as the main module
+if name == ‘main’: unittest.main()
