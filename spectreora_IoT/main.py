@@ -6,12 +6,13 @@ import ujson
 from machine import ADC, Pin
 import urequests
 
-ecg_data_array = [0] * 3000
+
+ecg_data_array = [0] * 1870
 counter = 0
 
 
 def wifi_connect():
-    ssid, password = config.ssid, config.password
+    ssid, password = config.SSID, config.PASSWORD
     wlan = WLAN(STA_IF)
     wlan.active(True)
     wlan.connect(ssid, password)
@@ -29,6 +30,7 @@ def wifi_connect():
     return wlan
 
 
+
 def send_data(wlan, url, payload, headers):
     if not wlan.isconnected():
         print("Wi-Fi not connected. Unable to send data.")
@@ -36,20 +38,22 @@ def send_data(wlan, url, payload, headers):
 
     for _ in range(3):
         try:
-            with urequests.post(url, data=payload, headers=headers) as response:
-                return response.status_code
+            response = urequests.post(url, data=payload, headers=headers)
+            return response.status_code
         except OSError as e:
             print(f"Error: {e}\nRetrying...")
             sleep(1)
+        finally:
+            response.close()
 
     print("Failed to send data after 3 retries.")
-
 
 def read_adc(adc):
     global counter
     ecg_data = adc.read_u16()
+    print(ecg_data)
     ecg_data_array[counter] = ecg_data
-    counter = (counter + 1) % 3000
+    counter = (counter + 1) % 1870
     gc.collect()
     return counter == 0
 
@@ -60,7 +64,7 @@ url, headers = config.SUPABASE_URL, {
     "apikey": config.API_KEY,
     "Content-Type": config.TYPE
 }
-sampling_interval, send_data_interval = 4, 15005
+sampling_interval, send_data_interval = 8, 15 * 1000
 next_sample, last_send_time = ticks_ms(), ticks_ms()
 
 while True:
