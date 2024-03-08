@@ -1,0 +1,12 @@
+{
+  "name": "AD8232 ECG",
+  "author": "Intiser Ahmed",
+  "pins": [
+    "OUTPUT",
+    "3.3V",
+    "GND",
+    "SDN",
+    "L0+",
+    "L0-"
+  ]
+}

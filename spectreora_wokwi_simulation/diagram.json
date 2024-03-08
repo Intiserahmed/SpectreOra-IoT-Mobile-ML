@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "author": "Intiser",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-pi-pico-w",
+      "id": "pico",
+      "top": 6.26,
+      "left": -69.11,
+      "attrs": { "cyw43": "1" }
+    },
+    { "type": "chip-bounce", "id": "chip1", "top": -38.06, "left": 69.29, "attrs": {} }
+  ],
+  "connections": [
+    [ "pico:GND.8", "chip1:GND", "black", [ "v-0.11", "h60.38", "v-49.52" ] ],
+    [ "pico:3V3", "chip1:3.3V", "red", [ "h52.76", "v-78.43" ] ],
+    [ "pico:GP26", "chip1:OUTPUT", "white", [ "h36.58", "v-136.03" ] ],
+    [ "pico:GP13", "chip1:L0-", "gold", [ "h-43.33", "v-216.27", "h284.27" ] ],
+    [
+      "pico:GP12",
+      "chip1:L0+",
+      "blue",
+      [ "h-21.23", "v-0.39", "h-37.36", "v-215.61", "h310.98", "v33.05" ]
+    ]
+  ],
+  "serialMonitor": { "display": "terminal" },
+  "dependencies": {}
+}

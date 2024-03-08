@@ -1,0 +1,4 @@
+API_KEY = ""
+SUPABASE_URL = ""
+TYPE = ""
+USER_ID = ""
